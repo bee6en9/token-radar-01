@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Radar — pre-token protocols ranked by implied value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Token Radar</span></div>
+  <div class="masthead-meta">
+    <span id="meta-asof">Snapshot —</span>
+    <span>DefiLlama protocol index</span>
+    <span id="meta-model">radar-2 model</span>
+  </div>
+</header>
+<main class="page">
+  <section class="intro">
+    <h1 id="intro-title">Watchlist protocols, ranked by implied value</h1>
+    <p id="intro-text">The watchlist is the floor: every protocol with at least $50M of TVL and no token on record. The early radar adds pre-token protocols below that floor. Implied value is a model, not a promise.</p>
+    <div class="stats">
+      <div class="stat"><span>Watchlist covered</span><b id="stat-watchlist">—</b></div>
+      <div class="stat"><span>Pre-token rows scored</span><b id="stat-board">—</b></div>
+      <div class="stat"><span>Early rows below the floor</span><b id="stat-early">—</b></div>
+      <div class="stat"><span>Live-token set aside</span><b id="stat-live">—</b></div>
+    </div>
+  </section>
+  <section class="controls" aria-label="Board controls">
+    <div class="control">
+      <label for="q">Search</label>
+      <input type="search" id="q" placeholder="Name, slug, category or chain" autocomplete="off">
+    </div>
+    <div class="control">
+      <label for="category">Category</label>
+      <select id="category"><option value="all">All categories</option></select>
+    </div>
+    <div class="control">
+      <label for="min-tvl">Minimum TVL</label>
+      <select id="min-tvl">
+        <option value="0">No minimum</option>
+        <option value="5000000">$5M</option>
+        <option value="50000000">$50M</option>
+        <option value="500000000">$500M</option>
+        <option value="5000000000">$5B</option>
+      </select>
+    </div>
+    <div class="control check">
+      <label><input type="checkbox" id="watchlist-only"> Watchlist only</label>
+    </div>
+    <div class="control">
+      <label for="sort">Sort by</label>
+      <select id="sort">
+        <option value="implied">Implied value</option>
+        <option value="tvl">TVL</option>
+        <option value="growth">7-day growth</option>
+        <option value="age">Age</option>
+        <option value="name">Name</option>
+      </select>
+    </div>
+    <div class="control tabs" role="group" aria-label="Token status">
+      <button type="button" id="tab-pre" class="tab active" aria-pressed="true">Pre-token</button>
+      <button type="button" id="tab-live" class="tab" aria-pressed="false">Live token</button>
+    </div>
+    <span class="count" id="count">— rows shown</span>
+  </section>
+  <div class="board-layout">
+    <section class="panel table-panel" aria-label="Ranked board">
+      <div class="table-wrap">
+        <table id="board-table">
+          <caption>Pre-token protocols, strongest implied value first. Select a row for its model and farm plan.</caption>
+          <thead>
+            <tr>
+              <th scope="col" data-sort="implied">Rank</th>
+              <th scope="col" data-sort="name">Protocol</th>
+              <th scope="col" data-sort="tvl">TVL</th>
+              <th scope="col" data-sort="growth">7d</th>
+              <th scope="col" data-sort="age">Age</th>
+              <th scope="col" data-sort="implied">Implied value</th>
+              <th scope="col">Token</th>
+            </tr>
+          </thead>
+          <tbody id="board-body"></tbody>
+        </table>
+        <div id="empty" class="empty" hidden>
+          <h2>No protocol matches that filter</h2>
+          <p>Clear the search or pick another category to see the board again.</p>
+          <button type="button" id="clear-filters" class="button">Clear filters</button>
+        </div>
+      </div>
+    </section>
+    <aside class="panel detail" id="detail" aria-label="Protocol detail" hidden>
+      <div class="detail-head">
+        <div>
+          <span class="detail-rank" id="detail-rank"></span>
+          <h2 id="detail-title"></h2>
+          <p class="sub" id="detail-sub"></p>
+        </div>
+        <button type="button" class="close" id="detail-close" aria-label="Close details">Close</button>
+      </div>
+      <section class="detail-section">
+        <h3>Implied value</h3>
+        <dl class="equation" id="detail-equation"></dl>
+        <p class="sub" id="detail-check"></p>
+      </section>
+      <section class="detail-section">
+        <h3>Farm plan</h3>
+        <ol class="steps" id="detail-steps"></ol>
+      </section>
+    </aside>
+  </div>
+  <section class="panel model-panel" aria-label="How the model works">
+    <h2>How implied value is computed</h2>
+    <p class="sub">One function scores every row from the snapshot figures. No protocol name is special-cased, and no row is hand-picked.</p>
+    <div class="formula" id="model-formula"></div>
+    <table class="constants" id="model-constants">
+      <caption>Model constants (radar-2)</caption>
+      <thead><tr><th scope="col">Constant</th><th scope="col">Value</th><th scope="col">What it means</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="sub">TVL and seven-day growth come from the snapshot. Age is the time since the protocol was first listed, the best record of how long it has run with no token; an unlisted age uses 365 days. Breadth is the number of chains the protocol runs on: each extra chain up to five adds 3%. The early radar is every pre-token protocol below the watchlist floor, by TVL, and the live-token protocols are set aside with their market caps shown.</p>
+  </section>
+</main>
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
