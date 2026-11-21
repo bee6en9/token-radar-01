@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Token Radar — pre-token protocols ranked by implied value</title>
+<title>Token Radar — pre-token protocols ranked by implied value, validated out of sample</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -12,19 +12,58 @@
   <div class="masthead-meta">
     <span id="meta-asof">Snapshot —</span>
     <span>DefiLlama protocol index</span>
-    <span id="meta-model">radar-2 model</span>
+    <span id="meta-model">radar-3 model</span>
   </div>
 </header>
 <main class="page">
   <section class="intro">
     <h1 id="intro-title">Watchlist protocols, ranked by implied value</h1>
     <p id="intro-text">The watchlist is the floor: every protocol with at least $50M of TVL and no token on record. The early radar adds pre-token protocols below that floor. Implied value is a model, not a promise.</p>
+    <p class="reading"><b>Reading it:</b> <span id="reading-text">Implied value is what a token would be worth if it launched, from the fitted size curve. Token odds is the chance it launches at all — a weak signal, read it as a tie-breaker. FARM means the expected airdrop, net of gas, clears $100 at $25 an hour with odds above the base rate; MARGINAL is worth watching; SKIP loses money on gas or is very unlikely to launch. The evidence section below shows how the model was tested before it ranked anything.</span></p>
     <div class="stats">
+      <div class="stat"><span>Protocols in snapshot</span><b id="stat-total">—</b></div>
       <div class="stat"><span>Watchlist covered</span><b id="stat-watchlist">—</b></div>
-      <div class="stat"><span>Pre-token rows scored</span><b id="stat-board">—</b></div>
-      <div class="stat"><span>Early rows below the floor</span><b id="stat-early">—</b></div>
-      <div class="stat"><span>Live-token set aside</span><b id="stat-live">—</b></div>
+      <div class="stat"><span>Board rows · FARM / MARGINAL / SKIP</span><b id="stat-verdicts">—</b></div>
+      <div class="stat"><span>Median implied multiple</span><b id="stat-multiple">—</b></div>
+      <div class="stat"><span>Out-of-sample miss, leave-one-out</span><b id="stat-miss">—</b></div>
+      <div class="stat"><span>Token-odds Brier, 5-fold CV</span><b id="stat-brier">—</b></div>
     </div>
+  </section>
+  <section class="panel evidence" aria-label="Out-of-sample evidence">
+    <h2>Is the model any good? The evidence, before the ranking</h2>
+    <p class="sub">Every number below is computed from the snapshot at runtime, on the protocols that already launched a token — the model never sees the protocol it is being tested on. A term is kept only if it lowers the held-out miss in <i>both</i> tests.</p>
+    <div class="evidence-grid">
+      <div>
+        <h3>Value if a token launches — typical miss</h3>
+        <table class="evidence-table" id="evidence-value">
+          <thead><tr><th scope="col">Test</th><th scope="col">Model</th><th scope="col">Flat median</th><th scope="col">n</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="sub" id="evidence-value-note"></p>
+      </div>
+      <div>
+        <h3>Token odds — Brier score, lower is better</h3>
+        <table class="evidence-table" id="evidence-odds">
+          <thead><tr><th scope="col">Test</th><th scope="col">Model</th><th scope="col">Base rate</th><th scope="col">n</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="sub" id="evidence-odds-note"></p>
+      </div>
+      <div>
+        <h3>Is the printed range honest?</h3>
+        <table class="evidence-table" id="evidence-range">
+          <thead><tr><th scope="col">Range</th><th scope="col">Stated</th><th scope="col">Actually inside</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="sub" id="evidence-range-note"></p>
+      </div>
+    </div>
+    <p class="sub" id="evidence-terms"></p>
+  </section>
+  <section class="panel accounting" aria-label="Protocol accounting">
+    <h2>Accounting: all 758 snapshot protocols, none hidden</h2>
+    <div class="funnel" id="funnel"></div>
+    <div class="badges" id="badges"></div>
   </section>
   <section class="controls" aria-label="Board controls">
     <div class="control">
@@ -49,11 +88,22 @@
       <label><input type="checkbox" id="watchlist-only"> Watchlist only</label>
     </div>
     <div class="control">
+      <label for="verdict">Verdict</label>
+      <select id="verdict">
+        <option value="all">All verdicts</option>
+        <option value="FARM">FARM</option>
+        <option value="MARGINAL">MARGINAL</option>
+        <option value="SKIP">SKIP</option>
+      </select>
+    </div>
+    <div class="control">
       <label for="sort">Sort by</label>
       <select id="sort">
         <option value="implied">Implied value</option>
         <option value="tvl">TVL</option>
         <option value="growth">7-day growth</option>
+        <option value="odds">Token odds</option>
+        <option value="net">Net / hour</option>
         <option value="age">Age</option>
         <option value="name">Name</option>
       </select>
@@ -68,16 +118,19 @@
     <section class="panel table-panel" aria-label="Ranked board">
       <div class="table-wrap">
         <table id="board-table">
-          <caption>Pre-token protocols, strongest implied value first. Select a row for its model and farm plan.</caption>
+          <caption>Pre-token protocols, strongest implied value first. Select a row for its model, odds, verdict and farm plan.</caption>
           <thead>
             <tr>
               <th scope="col" data-sort="implied">Rank</th>
               <th scope="col" data-sort="name">Protocol</th>
+              <th scope="col">Category</th>
               <th scope="col" data-sort="tvl">TVL</th>
               <th scope="col" data-sort="growth">7d</th>
-              <th scope="col" data-sort="age">Age</th>
               <th scope="col" data-sort="implied">Implied value</th>
-              <th scope="col">Token</th>
+              <th scope="col" data-sort="odds">Token odds</th>
+              <th scope="col" data-sort="verdict">Verdict</th>
+              <th scope="col" data-sort="net">Net / hour</th>
+              <th scope="col" data-sort="age">Age</th>
             </tr>
           </thead>
           <tbody id="board-body"></tbody>
@@ -104,7 +157,19 @@
         <p class="sub" id="detail-check"></p>
       </section>
       <section class="detail-section">
+        <h3>Token odds &amp; verdict</h3>
+        <dl class="equation" id="detail-odds"></dl>
+        <p class="sub" id="detail-verdict-note"></p>
+      </section>
+      <section class="detail-section">
         <h3>Farm plan</h3>
+        <div class="plan-controls">
+          <label>Deposit, % of TVL <input type="number" id="plan-deposit" min="0.001" max="0.1" step="0.001" value="0.02"> <span id="plan-deposit-usd"></span></label>
+          <label>Drop share, % <input type="number" id="plan-drop" min="1" max="15" step="0.5" value="7"></label>
+          <label>Horizon, weeks <input type="number" id="plan-horizon" min="4" max="26" step="1" value="12"></label>
+        </div>
+        <dl class="equation" id="detail-economics"></dl>
+        <p class="sub" id="detail-economics-note"></p>
         <ol class="steps" id="detail-steps"></ol>
       </section>
     </aside>
@@ -114,11 +179,11 @@
     <p class="sub">One function scores every row from the snapshot figures. No protocol name is special-cased, and no row is hand-picked.</p>
     <div class="formula" id="model-formula"></div>
     <table class="constants" id="model-constants">
-      <caption>Model constants (radar-2)</caption>
+      <caption>Model constants (radar-3)</caption>
       <thead><tr><th scope="col">Constant</th><th scope="col">Value</th><th scope="col">What it means</th></tr></thead>
       <tbody></tbody>
     </table>
-    <p class="sub">TVL and seven-day growth come from the snapshot. Age is the time since the protocol was first listed, the best record of how long it has run with no token; an unlisted age uses 365 days. Breadth is the number of chains the protocol runs on: each extra chain up to five adds 3%. The early radar is every pre-token protocol below the watchlist floor, by TVL, and the live-token protocols are set aside with their market caps shown.</p>
+    <p class="sub">The size multiple is fitted, not assumed: log(market cap) = <span id="model-fit"></span> on the snapshot's launched tokens, so a bigger TVL implies a smaller multiple. Growth, maturity and breadth are fixed judgment terms from radar-2 — a richer model that fitted them made the held-out miss worse, so they stay fixed and the dashboard says so. Age is the time since the protocol was first listed, the best record of how long it has run with no token; an unlisted age uses 365 days. Breadth is the number of chains the protocol runs on: each extra chain up to five adds 3%. The product rule runs before ranking: exchanges, versioned pools, wrapped or staked products and exchange-branded products are out, because they are a token that already trades in another form. The early radar is every rankable pre-token protocol below the watchlist floor, by TVL, and the live-token protocols are set aside with their market caps shown.</p>
   </section>
 </main>
 <script src="../data.js"></script>
